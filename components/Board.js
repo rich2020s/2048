@@ -12,8 +12,7 @@ const BoardContainer = styled.div`
   border-radius: 3px;
   position: relative;
 `;
-export const Board = ({ size }) => {
-  // function renderGrid() {
+export const Board = ({ size, children }) => {
   const count = size * size;
   const grids = [];
   for (let i = 0; i < count; i++) {
@@ -24,6 +23,7 @@ export const Board = ({ size }) => {
       {grids.map((ele) => {
         return ele;
       })}
+      {children}
     </BoardContainer>
   );
 };

@@ -1,13 +1,12 @@
-import { useEffect, useRef } from "react";
-let seqId = 3;
-export const useIds = () => {
-  const nextId = () => seqId++;
-  return nextId();
-};
+let seqId = 5;
 // export const useIds = () => {
-//   // const nextId = () => {
-//   //   return seqId++;
-//   // };
-
-//   // return nextId();
+//   const nextId = () => seqId++;
+//   return nextId();
 // };
+export const idCounter = () => {
+  const nextId = () => {
+    return seqId++;
+  };
+
+  return nextId;
+};

@@ -1,6 +1,15 @@
 import Head from "next/head";
 import Image from "next/image";
-import { CREATE_NEW_TILE } from "../actionType";
+import {
+  CREATE_NEW_TILE,
+  END_MOVE,
+  MOVE_UP,
+  START_MOVE,
+  UPDATE_TILE,
+  RESET_BOARD,
+  CLEAR_EFFECT,
+  REDO_BOARD,
+} from "../actionType";
 import { useEffect, useState, useMemo, useCallback, useReducer } from "react";
 import { Title, Tile, Board, Wrapper, Row, Block } from "../components";
 import { moveUp, moveDown, moveLeft, moveRight } from "../moveMethod";
@@ -38,11 +47,20 @@ export default function Game2048() {
     return false;
   }
   const handelKeydown = useCallback((e) => {
-    // const up = 38;
+    const up = 38;
     // const right = 39;
     // const down = 40;
     // const left = 37;
-    // if (e.keyCode === up) {
+    if (board.inMotion) return;
+    if (e.keyCode === up) {
+      dispatch({ type: START_MOVE });
+      dispatch({ type: MOVE_UP });
+      setTimeout(() => {
+        dispatch({ type: UPDATE_TILE });
+        dispatch({ type: CLEAR_EFFECT });
+        dispatch({ type: END_MOVE });
+      }, 250);
+    }
     //   console.log("up");
     //   setBoard(moveUp(board));
     // } else if (e.keyCode === right) {
@@ -58,17 +76,16 @@ export default function Game2048() {
   }, []);
   useEffect(() => {
     document.addEventListener("keydown", handelKeydown);
-    console.log(board.tiles);
     return () => {
       document.removeEventListener("keydown", handelKeydown);
     };
   }, []);
-  useEffect(() => {
-    console.log(board);
-  }, [board]);
+  // useEffect(() => {
+  // }, [board]);
   return (
     <Wrapper>
       <Title>Game 2048</Title>
+      <div>{board.score}</div>
       <button
         onClick={() => {
           dispatch({ type: CREATE_NEW_TILE });
@@ -78,14 +95,17 @@ export default function Game2048() {
       </button>
       <button
         onClick={() => {
-          if (atLeastOneMoveExists(board)) {
-            console.log("not over");
-          } else {
-            console.log("it's over");
-          }
+          dispatch({ type: RESET_BOARD });
         }}
       >
-        check if it is over
+        new board
+      </button>
+      <button
+        onClick={() => {
+          dispatch({ type: REDO_BOARD });
+        }}
+      >
+        last board
       </button>
       <Board size={size}>
         {board.tiles.map((tile, index) => (

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useIds } from "../hook/useIds";
+import { idCounter } from "../hook/useIds";
 export const moveUp = (board, setBoard) => {
   //[0,0 ][0,1][0,2][0,3]
   const size = board.length;
@@ -172,8 +172,7 @@ export const moveRight = (board) => {
 };
 export function generateNewTile(tiles) {
   let board = tileOnBoard(tiles);
-  const newId = useIds;
-  console.log(newId);
+  const newId = idCounter();
   if (isFull(board)) return board;
   let newBoard = [];
   board.map((rows, x) =>
@@ -185,7 +184,7 @@ export function generateNewTile(tiles) {
   const coordinate = newBoard[Math.floor(Math.random() * newBoard.length)];
 
   const newTile = {
-    id: newId,
+    id: newId(),
     value: generateRandomNumber(),
     position: [coordinate[0], coordinate[1]],
     isHighLight: true,

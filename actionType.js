@@ -5,3 +5,7 @@ export const MOVE_RIGHT = "MOVE_RIGHT";
 export const MOVE_LEFT = "MOVE_LEFT";
 export const START_MOVE = "START_MOVE";
 export const END_MOVE = "END_MOVE";
+export const UPDATE_TILE = "UPDATE_TILE";
+export const RESET_BOARD = "RESET_BOARD";
+export const CLEAR_EFFECT = "CLEAR_EFFECT";
+export const REDO_BOARD = "REDO_BOARD";

@@ -9,6 +9,9 @@ import {
   RESET_BOARD,
   CLEAR_EFFECT,
   REDO_BOARD,
+  MOVE_LEFT,
+  MOVE_DOWN,
+  MOVE_RIGHT,
 } from "../actionType";
 import { useEffect, useState, useMemo, useCallback, useReducer } from "react";
 import { Title, Tile, Board, Wrapper, Row, Block } from "../components";
@@ -48,31 +51,44 @@ export default function Game2048() {
   }
   const handelKeydown = useCallback((e) => {
     const up = 38;
-    // const right = 39;
-    // const down = 40;
-    // const left = 37;
+    const right = 39;
+    const down = 40;
+    const left = 37;
     if (board.inMotion) return;
     if (e.keyCode === up) {
+      e.preventDefault();
       dispatch({ type: START_MOVE });
       dispatch({ type: MOVE_UP });
       setTimeout(() => {
         dispatch({ type: UPDATE_TILE });
-        dispatch({ type: CLEAR_EFFECT });
+        // dispatch({ type: CLEAR_EFFECT });
+        dispatch({ type: END_MOVE });
+      }, 250);
+    } else if (e.keyCode === right) {
+      e.preventDefault();
+      dispatch({ type: START_MOVE });
+      dispatch({ type: MOVE_RIGHT });
+      setTimeout(() => {
+        dispatch({ type: UPDATE_TILE });
+        // dispatch({ type: CLEAR_EFFECT });
+        dispatch({ type: END_MOVE });
+      }, 250);
+    } else if (e.keyCode === down) {
+      e.preventDefault();
+      dispatch({ type: START_MOVE });
+      dispatch({ type: MOVE_DOWN });
+      setTimeout(() => {
+        dispatch({ type: UPDATE_TILE });
+        dispatch({ type: END_MOVE });
+      }, 250);
+    } else if (e.keyCode === left) {
+      dispatch({ type: START_MOVE });
+      dispatch({ type: MOVE_LEFT });
+      setTimeout(() => {
+        dispatch({ type: UPDATE_TILE });
         dispatch({ type: END_MOVE });
       }, 250);
     }
-    //   console.log("up");
-    //   setBoard(moveUp(board));
-    // } else if (e.keyCode === right) {
-    //   setBoard(moveRight(board));
-    //   console.log("right");
-    // } else if (e.keyCode === down) {
-    //   console.log("down");
-    //   setBoard(moveDown(board, setBoard));
-    // } else if (e.keyCode === left) {
-    //   setBoard(moveLeft(board));
-    //   console.log("left");
-    // }
   }, []);
   useEffect(() => {
     document.addEventListener("keydown", handelKeydown);
@@ -80,8 +96,9 @@ export default function Game2048() {
       document.removeEventListener("keydown", handelKeydown);
     };
   }, []);
-  // useEffect(() => {
-  // }, [board]);
+  useEffect(() => {
+    console.log(board);
+  }, [board]);
   return (
     <Wrapper>
       <Title>Game 2048</Title>
@@ -108,9 +125,9 @@ export default function Game2048() {
         last board
       </button>
       <Board size={size}>
-        {board.tiles.map((tile, index) => (
-          <Tile tileData={tile} key={index} />
-        ))}
+        {board.tiles.map(
+          (tile, index) => tile.value && <Tile tileData={tile} key={index} />
+        )}
       </Board>
     </Wrapper>
   );

@@ -9,37 +9,71 @@ import {
   END_MOVE,
   RESET_BOARD,
   CLEAR_EFFECT,
-  REDO_BOARD,
 } from "./actionType";
-import { generateNewTile } from "./moveMethod";
+import {
+  generateNewTile,
+  createInitialTilesArr,
+  insertNewTile,
+  tileOnBoard,
+  moveUp,
+  moveLeft,
+  moveDown,
+  moveRight,
+} from "./moveMethod";
 import { idCounter } from "./hook/useIds";
-const newId = idCounter();
-let tmp;
+import { interpolateAs } from "next/dist/shared/lib/router/router";
+
+const initialArr = createInitialTilesArr();
 export const initialState = {
-  tiles: [
-    { id: 1, value: 2, position: [2, 0], isHighLight: true },
-    { id: 2, value: 2, position: [1, 2], isHighLight: true },
-  ],
+  tiles: [...initialArr],
   newTiles: [],
   inMotion: false,
   score: 0,
 };
 export const reducer = (state, action) => {
+  const currentBoard = tileOnBoard(state.tiles);
+  let newTiles;
   switch (action.type) {
     case CREATE_NEW_TILE:
       const newTile = generateNewTile(state.tiles);
+      const { tiles } = state;
+      const nextArr = insertNewTile(tiles, newTile);
       return {
         ...state,
-        tiles: [...state.tiles, newTile],
+        tiles: [...nextArr],
       };
     case MOVE_UP:
       console.log(state.tiles);
-      tmp = { ...state };
-      const currentBoard = tileOnBoard(state.tiles);
-      const [nextBoard, newTiles] = moveUp(currentBoard);
+      let boardAfterMoveUp;
+      [boardAfterMoveUp, newTiles] = moveUp(currentBoard);
       return {
         ...state,
-        tiles: nextBoard,
+        tiles: boardAfterMoveUp,
+        newTiles,
+      };
+    case MOVE_LEFT:
+      // const currentBoard = tileOnBoard(state.tiles);
+      let boardAfterMoveLeft;
+      [boardAfterMoveLeft, newTiles] = moveLeft(currentBoard);
+      return {
+        ...state,
+        tiles: boardAfterMoveLeft,
+        newTiles,
+      };
+    case MOVE_DOWN:
+      let boardAfterMoveDown;
+      [boardAfterMoveDown, newTiles] = moveDown(currentBoard);
+      return {
+        ...state,
+        tiles: boardAfterMoveDown,
+        newTiles,
+      };
+    case MOVE_RIGHT:
+      let boardAfterMoveRight;
+      [boardAfterMoveRight, newTiles] = moveRight(currentBoard);
+      return {
+        ...state,
+        tiles: boardAfterMoveRight,
         newTiles,
       };
     case UPDATE_TILE:
@@ -48,21 +82,39 @@ export const reducer = (state, action) => {
       //   (pre, current) => pre.value + current.value,
       //   0
       // );
-      let newScore = state.score;
-      let updateTiles = state.tiles.filter((tile) => !tile.isMerged);
-      console.log(state.newTiles);
-      // console.log(state.newTiles);
-      state.newTiles.forEach((tile) => {
-        updateTiles.push(tile);
-        if (tile.value !== null) newScore += tile.value;
+      let { score } = state;
+      let updateTiles = state.tiles.map((tile) => {
+        if (tile.isMerged) {
+          return {
+            id: null,
+            value: null,
+          };
+        }
+        return tile;
       });
-      updateTiles.sort((a, b) => a.id - b.id);
+      // console.log(state.newTiles);
+      console.log(updateTiles);
+      const newTilesAfterMerged = state.newTiles;
+      console.log(newTilesAfterMerged);
+      for (let i = 0; i < newTilesAfterMerged.length; i++) {
+        for (let j = 0; j < updateTiles.length; j++) {
+          if (updateTiles[j].value === null) {
+            // console.log(newTilesAfterMerged[i]);
+            updateTiles[j] = {
+              ...newTilesAfterMerged[i],
+            };
+            if (newTilesAfterMerged[i]) score += newTilesAfterMerged[i].value;
+            i++;
+          }
+          if (i >= newTilesAfterMerged.length) break;
+        }
+      }
       console.log("end update");
       return {
         ...state,
         tiles: updateTiles,
         newTiles: [],
-        score: newScore,
+        score,
       };
     case CLEAR_EFFECT:
       let clearTilesEffect = state.tiles.map((tile) => {
@@ -74,10 +126,6 @@ export const reducer = (state, action) => {
       return {
         ...state,
         tiles: clearTilesEffect,
-      };
-    case REDO_BOARD:
-      return {
-        ...tmp,
       };
     case RESET_BOARD:
       return {
@@ -99,96 +147,77 @@ export const reducer = (state, action) => {
   }
 };
 
-const moveUp = (board) => {
-  let tileContainer = [];
-  let tileBeenMerged = [];
-  const size = board.length;
-  let newBoard = [...board];
-
-  for (let i = 0; i < size; i++) {
-    let counter = 0;
-    for (let j = 1; j < size; j++) {
-      const { id, value } = newBoard[j][i];
-      if (newBoard[j][i].value === null) continue;
-      else if (newBoard[counter][i].value === null) {
-        console.log(newBoard[j][i], newBoard[counter][i]);
-        // newBoard[j][i].position = [counter, i];
-        newBoard[counter][i] = {
-          ...newBoard[j][i],
-          position: [counter, i],
-          isHighLight: false,
-        };
-        newBoard[j][i] = { id: null, value: null };
-        console.log(newBoard[j][i], newBoard[counter][i]);
-      } else if (newBoard[j][i].value === newBoard[counter][i].value) {
-        tileContainer.push({
-          id,
-          value,
-          position: [counter, i],
-          isMerged: true,
-        });
-        tileBeenMerged.push({
-          id: newId(),
-          value: value * 2,
-          position: [counter, i],
-          isHighLight: true,
-        });
-        newBoard[j][i] = { value: null };
-        newBoard[counter][i].isMerged = true;
-        console.log(newBoard[j][i], newBoard[counter][i]);
-        counter++;
-      } else if (newBoard[j][i].value !== newBoard[counter][i].value) {
-        counter++;
-        if (counter === j) continue;
-        j = j - 1;
-        console.log(`${j}`);
-      } else {
-        console.log("err");
-      }
-    }
-  }
-  for (let rows of newBoard) {
-    for (let tile of rows) {
-      if (tile.value) tileContainer.push(tile);
-    }
-  }
-  tileContainer.sort((a, b) => {
-    return a.id - b.id;
-  });
-  console.log(tileContainer);
-  return [tileContainer, tileBeenMerged];
-};
-
-function tileOnBoard(tiles) {
-  const newBoard = createEmptyBoard();
-  for (let i = 0; i < tiles.length; i++) {
-    if (tiles[i].value) {
-      let [x, y] = tiles[i].position;
-      newBoard[x][y] = {
-        ...tiles[i],
-        id: tiles[i].id,
-        value: tiles[i].value,
-      };
-    }
-  }
-  return newBoard;
-}
-function createEmptyBoard() {
-  let arr = [];
-  const size = 4;
-  for (let i = 0; i < size; i++) {
-    arr.push([]);
-    for (let j = 0; j < size; j++) {
-      arr[i].push({
-        id: null,
-        value: null,
-      });
-    }
-  }
-  return arr;
-}
-function createNewTile(newTiles) {
-  let tiles = [...board.tiles];
-  tiles.push(newTiles);
-  setBoard({ ...board, tiles: tiles });
-}
+// function tileOnBoard(tiles) {
+//   const newBoard = createEmptyBoard();
+//   for (let i = 0; i < tiles.length; i++) {
+//     if (tiles[i].value) {
+//       let [x, y] = tiles[i].position;
+//       newBoard[x][y] = {
+//         ...tiles[i],
+//         id: tiles[i].id,
+//         value: tiles[i].value,
+//         indexInArr: i,
+//       };
+//     }
+//   }
+//   return newBoard;
+// }
+// function createEmptyBoard() {
+//   let arr = [];
+//   const size = 4;
+//   for (let i = 0; i < size; i++) {
+//     arr.push([]);
+//     for (let j = 0; j < size; j++) {
+//       arr[i].push({
+//         id: null,
+//         value: null,
+//       });
+//     }
+//   }
+//   return arr;
+// }
+// function createEmptyTilesArr() {
+//   let emptyArr = [];
+//   for (let i = 0; i < 16; i++) {
+//     emptyArr.push({ id: null, value: null });
+//   }
+//   return emptyArr;
+// }
+// function insertNewTile(originArr, newTile) {
+//   let nextArr = [...originArr];
+//   for (let i = 0; i < nextArr.length; i++) {
+//     // console.log(ele);
+//     // console.log(newTile);
+//     if (nextArr[i].value === null) {
+//       nextArr[i] = {
+//         ...newTile,
+//       };
+//       break;
+//     }
+//   }
+//   return nextArr;
+// }
+// function createInitialTilesArr() {
+//   let initialArr = createEmptyTilesArr();
+//   initialArr[0] = {
+//     id: 4,
+//     value: 2,
+//     position: [2, 0],
+//   };
+//   initialArr[4] = {
+//     id: 1,
+//     value: 2,
+//     position: [0, 0],
+//   };
+//   initialArr[8] = {
+//     id: 2,
+//     value: 2,
+//     position: [1, 0],
+//   };
+//   initialArr[12] = {
+//     id: 3,
+//     value: 2,
+//     position: [3, 0],
+//   };
+//   return initialArr;
+// }

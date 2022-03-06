@@ -31,13 +31,13 @@ export const initialState = {
   score: 0,
 };
 export const reducer = (state, action) => {
-  const currentBoard = tileOnBoard(state.tiles);
+  const { tiles } = state;
+  const currentBoard = tileOnBoard(tiles);
   let newTiles;
   switch (action.type) {
     case CREATE_NEW_TILE:
-      const newTile = generateNewTile(state.tiles);
-      const { tiles } = state;
-      const nextArr = insertNewTile(tiles, newTile);
+      let oneNewTile = generateNewTile(state.tiles);
+      let nextArr = insertNewTile(tiles, oneNewTile);
       return {
         ...state,
         tiles: [...nextArr],
@@ -78,10 +78,6 @@ export const reducer = (state, action) => {
       };
     case UPDATE_TILE:
       console.log("start update");
-      // const score = state.newTiles.reducer(
-      //   (pre, current) => pre.value + current.value,
-      //   0
-      // );
       let { score } = state;
       let updateTiles = state.tiles.map((tile) => {
         if (tile.isMerged) {
@@ -110,6 +106,8 @@ export const reducer = (state, action) => {
         }
       }
       console.log("end update");
+      // oneNewTile = generateNewTile(updateTiles);
+      // nextArr = insertNewTile(updateTiles, oneNewTile);
       return {
         ...state,
         tiles: updateTiles,

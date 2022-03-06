@@ -61,6 +61,7 @@ export default function Game2048() {
       dispatch({ type: MOVE_UP });
       setTimeout(() => {
         dispatch({ type: UPDATE_TILE });
+        dispatch({ type: CREATE_NEW_TILE });
         // dispatch({ type: CLEAR_EFFECT });
         dispatch({ type: END_MOVE });
       }, 250);
@@ -70,7 +71,7 @@ export default function Game2048() {
       dispatch({ type: MOVE_RIGHT });
       setTimeout(() => {
         dispatch({ type: UPDATE_TILE });
-        // dispatch({ type: CLEAR_EFFECT });
+        dispatch({ type: CREATE_NEW_TILE });
         dispatch({ type: END_MOVE });
       }, 250);
     } else if (e.keyCode === down) {
@@ -79,6 +80,7 @@ export default function Game2048() {
       dispatch({ type: MOVE_DOWN });
       setTimeout(() => {
         dispatch({ type: UPDATE_TILE });
+        dispatch({ type: CREATE_NEW_TILE });
         dispatch({ type: END_MOVE });
       }, 250);
     } else if (e.keyCode === left) {
@@ -86,6 +88,7 @@ export default function Game2048() {
       dispatch({ type: MOVE_LEFT });
       setTimeout(() => {
         dispatch({ type: UPDATE_TILE });
+        dispatch({ type: CREATE_NEW_TILE });
         dispatch({ type: END_MOVE });
       }, 250);
     }
@@ -105,28 +108,14 @@ export default function Game2048() {
       <div>{board.score}</div>
       <button
         onClick={() => {
-          dispatch({ type: CREATE_NEW_TILE });
-        }}
-      >
-        new tiles
-      </button>
-      <button
-        onClick={() => {
           dispatch({ type: RESET_BOARD });
         }}
       >
         new board
       </button>
-      <button
-        onClick={() => {
-          dispatch({ type: REDO_BOARD });
-        }}
-      >
-        last board
-      </button>
       <Board size={size}>
         {board.tiles.map(
-          (tile, index) => tile.value && <Tile tileData={tile} key={index} />
+          (tile, index) => tile.value && <Tile tile={tile} key={index} />
         )}
       </Board>
     </Wrapper>

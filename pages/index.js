@@ -19,7 +19,7 @@ import { initialState, reducer } from "../reducer";
 import size from "../boardSize";
 export default function Game2048() {
   const [board, dispatch] = useReducer(reducer, initialState);
-  const [over, setIsOver] = useState(board.isGameOver);
+  const [isLoading, setIsLoading] = useState(true);
   const handelKeyDown = (e) => {
     e.preventDefault();
     const up = 38;
@@ -67,6 +67,9 @@ export default function Game2048() {
     trailing: false,
   });
   useEffect(() => {
+    setIsLoading(false);
+  }, []);
+  useEffect(() => {
     document.addEventListener("keydown", throttledHandleKeyDown);
     return () => {
       document.removeEventListener("keydown", throttledHandleKeyDown);
@@ -75,6 +78,7 @@ export default function Game2048() {
   useEffect(() => {
     console.log(board);
   }, [board]);
+  if (isLoading) return "";
   return (
     <>
       <GlobalStyle />

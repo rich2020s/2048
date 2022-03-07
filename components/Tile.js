@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Children, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePrevProps } from "../hook/usePreProps";
 export const TileContainer = styled.div`
   height: 100px;
@@ -90,7 +90,7 @@ export function Tile({ tile }) {
         setScale(1);
       }, 200);
     }
-  }, [shallHighLight, id]);
+  }, [shallHighLight]);
   return (
     <TileContainer
       className={value}

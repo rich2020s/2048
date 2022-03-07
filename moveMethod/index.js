@@ -1,9 +1,11 @@
 import { idCounter } from "../hook/useIds";
+
+import size from "../boardSize";
 export const moveUp = (board) => {
   const newId = idCounter();
+  let isChanged = false;
   let nextTilesArr = createEmptyTilesArr();
   let newTilesAfterMerged = [];
-  const size = board.length;
   let newBoard = [...board];
 
   for (let i = 0; i < size; i++) {
@@ -19,6 +21,7 @@ export const moveUp = (board) => {
           position: [counter, i],
         };
         newBoard[j][i] = { id: null, value: null };
+        isChanged = true;
       } else if (value === destination.value) {
         newTilesAfterMerged.push({
           id: newId(),
@@ -33,6 +36,7 @@ export const moveUp = (board) => {
         };
         newBoard[j][i] = { id: null, value: null };
         destination.isMerged = true;
+        isChanged = true;
         counter++;
       } else if (value !== destination.value) {
         counter++;
@@ -49,40 +53,12 @@ export const moveUp = (board) => {
       }
     }
   }
-  console.log(nextTilesArr);
-  return [nextTilesArr, newTilesAfterMerged];
+  return [nextTilesArr, newTilesAfterMerged, isChanged];
 };
 
-// export const moveUp = (board, setBoard) => {
-//   //[0,0 ][0,1][0,2][0,3]
-//   const size = board.length;
-//   let newBoard = [...board];
-//   for (let i = 0; i < size; i++) {
-//     let counter = 0;
-//     for (let j = 1; j < size; j++) {
-//       if (newBoard[j][i].value === 0) continue;
-//       else if (newBoard[counter][i].value === 0) {
-//         newBoard[counter][i].value = newBoard[j][i].value;
-//         newBoard[j][i].position = newBoard[counter][i].position;
-//         // newBoard[j][i] = 0;
-//       } else if (newBoard[j][i] === newBoard[counter][i]) {
-//         newBoard[counter][i] = newBoard[counter][i] * 2;
-//         newBoard[j][i] = 0;
-//         counter++;
-//       } else if (newBoard[j][i] !== newBoard[counter][i]) {
-//         counter++;
-//         if (counter === j) continue;
-//         j = j - 1;
-//         console.log(`${j}`);
-//       } else {
-//         console.log("err");
-//       }
-//     }
-//   }
-//   return newBoard;
-// };
 export const moveDown = (board) => {
   const newId = idCounter();
+  let isChanged = false;
   let nextTilesArr = createEmptyTilesArr();
   let newTilesAfterMerged = [];
   const size = board.length;
@@ -101,6 +77,7 @@ export const moveDown = (board) => {
           position: [counter, i],
         };
         newBoard[j][i] = { id: null, value: null };
+        isChanged = true;
       } else if (value === destination.value) {
         newTilesAfterMerged.push({
           id: newId(),
@@ -115,6 +92,7 @@ export const moveDown = (board) => {
         };
         newBoard[j][i] = { id: null, value: null };
         destination.isMerged = true;
+        isChanged = true;
         counter--;
       } else if (value !== destination.value) {
         counter--;
@@ -131,12 +109,12 @@ export const moveDown = (board) => {
       }
     }
   }
-  console.log(nextTilesArr);
-  return [nextTilesArr, newTilesAfterMerged];
+  return [nextTilesArr, newTilesAfterMerged, isChanged];
 };
 
 export const moveLeft = (board) => {
   const newId = idCounter();
+  let isChanged = false;
   let nextTilesArr = createEmptyTilesArr();
   let newTilesAfterMerged = [];
   const size = board.length;
@@ -155,6 +133,7 @@ export const moveLeft = (board) => {
           position: [i, counter],
         };
         newBoard[i][j] = { id: null, value: null };
+        isChanged = true;
       } else if (value === destination.value) {
         newTilesAfterMerged.push({
           id: newId(),
@@ -169,6 +148,7 @@ export const moveLeft = (board) => {
         };
         newBoard[i][j] = { id: null, value: null };
         destination.isMerged = true;
+        isChanged = true;
         counter++;
       } else if (value !== destination.value) {
         counter++;
@@ -185,11 +165,12 @@ export const moveLeft = (board) => {
       }
     }
   }
-  return [nextTilesArr, newTilesAfterMerged];
+  return [nextTilesArr, newTilesAfterMerged, isChanged];
 };
 
 export const moveRight = (board) => {
   const newId = idCounter();
+  let isChanged = false;
   let nextTilesArr = createEmptyTilesArr();
   let newTilesAfterMerged = [];
   const size = board.length;
@@ -208,6 +189,7 @@ export const moveRight = (board) => {
           position: [i, counter],
         };
         newBoard[i][j] = { id: null, value: null };
+        isChanged = true;
       } else if (value === destination.value) {
         newTilesAfterMerged.push({
           id: newId(),
@@ -222,6 +204,7 @@ export const moveRight = (board) => {
         };
         newBoard[i][j] = { id: null, value: null };
         destination.isMerged = true;
+        isChanged = true;
         counter--;
       } else if (value !== destination.value) {
         counter--;
@@ -238,12 +221,11 @@ export const moveRight = (board) => {
       }
     }
   }
-  return [nextTilesArr, newTilesAfterMerged];
+  return [nextTilesArr, newTilesAfterMerged, isChanged];
 };
 export function generateNewTile(tiles) {
   let board = tileOnBoard(tiles);
   const newId = idCounter();
-  if (isFull(board)) return board;
   let newBoard = [];
   board.map((rows, x) =>
     rows.map((tile, y) => {
@@ -258,14 +240,12 @@ export function generateNewTile(tiles) {
     value: generateRandomNumber(),
     position: [coordinate[0], coordinate[1]],
   };
-  console.log("here " + newTile);
   return newTile;
 }
-function isFull(board) {
-  for (let row of board) {
-    for (let ele of row) {
-      if (ele.value === null) return false;
-    }
+export function isFull(tiles) {
+  console.log(tiles);
+  for (let tile of tiles) {
+    if (tile.value === null) return false;
   }
   return true;
 }
@@ -304,7 +284,7 @@ function createEmptyBoard() {
 }
 function createEmptyTilesArr() {
   let emptyArr = [];
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < size * size; i++) {
     emptyArr.push({ id: null, value: null });
   }
   return emptyArr;
@@ -312,8 +292,6 @@ function createEmptyTilesArr() {
 export function insertNewTile(originArr, newTile) {
   let nextArr = [...originArr];
   for (let i = 0; i < nextArr.length; i++) {
-    // console.log(ele);
-    console.log(newTile);
     if (nextArr[i].value === null) {
       nextArr[i] = {
         ...newTile,
@@ -326,24 +304,14 @@ export function insertNewTile(originArr, newTile) {
 export function createInitialTilesArr() {
   let initialArr = createEmptyTilesArr();
   initialArr[0] = {
-    id: 2,
+    id: 1,
     value: 2,
     position: [0, 0],
   };
-  initialArr[1] = {
-    id: 1,
+  initialArr[4] = {
+    id: 2,
     value: 2,
-    position: [0, 1],
-  };
-  initialArr[2] = {
-    id: 3,
-    value: 2,
-    position: [0, 2],
-  };
-  initialArr[3] = {
-    id: 4,
-    value: 2,
-    position: [0, 3],
+    position: [1, 0],
   };
   return initialArr;
 }

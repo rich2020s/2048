@@ -1,5 +1,5 @@
-import Head from "next/head";
-import Image from "next/image";
+import { useThrottledCallback } from "use-debounce";
+import { GlobalStyle } from "../constant";
 import {
   CREATE_NEW_TILE,
   END_MOVE,
@@ -7,66 +7,35 @@ import {
   START_MOVE,
   UPDATE_TILE,
   RESET_BOARD,
-  CLEAR_EFFECT,
-  REDO_BOARD,
   MOVE_LEFT,
   MOVE_DOWN,
   MOVE_RIGHT,
 } from "../actionType";
-import { useEffect, useState, useMemo, useCallback, useReducer } from "react";
-import { Title, Tile, Board, Wrapper, Row, Block } from "../components";
+import { Container } from "../components/Wrapper";
+import { useEffect, useState, useCallback, useReducer } from "react";
+import { Title, Tile, Board, Wrapper } from "../components";
 import { moveUp, moveDown, moveLeft, moveRight } from "../moveMethod";
 import { initialState, reducer } from "../reducer";
+import size from "../boardSize";
 export default function Game2048() {
-  const size = 4;
   const [board, dispatch] = useReducer(reducer, initialState);
-
-  function atLeastOneMoveExists(board) {
-    for (let i = 0; i < size; i++) {
-      for (let j = 0; j < size; j++) {
-        let value = board[i][j];
-        if (i - 1 > 0) {
-          if (value === board[i - 1][j]) return true;
-        }
-        if (i + 1 < size) {
-          if (value === board[i + 1][j]) return true;
-        }
-        if (j - 1 > 0) {
-          if (value === board[i][j - 1]) return true;
-        }
-        if (j + 1 < size) {
-          if (value === board[i][j + 1]) return true;
-        }
-      }
-    }
-    return false;
-  }
-  function isWon(board) {
-    for (let row of board) {
-      for (let ele of row) {
-        if (ele === 2048) return true;
-      }
-    }
-    return false;
-  }
-  const handelKeydown = useCallback((e) => {
+  const [over, setIsOver] = useState(board.isGameOver);
+  const handelKeyDown = (e) => {
+    e.preventDefault();
     const up = 38;
     const right = 39;
     const down = 40;
     const left = 37;
     if (board.inMotion) return;
     if (e.keyCode === up) {
-      e.preventDefault();
       dispatch({ type: START_MOVE });
       dispatch({ type: MOVE_UP });
       setTimeout(() => {
         dispatch({ type: UPDATE_TILE });
         dispatch({ type: CREATE_NEW_TILE });
-        // dispatch({ type: CLEAR_EFFECT });
         dispatch({ type: END_MOVE });
       }, 250);
     } else if (e.keyCode === right) {
-      e.preventDefault();
       dispatch({ type: START_MOVE });
       dispatch({ type: MOVE_RIGHT });
       setTimeout(() => {
@@ -75,7 +44,6 @@ export default function Game2048() {
         dispatch({ type: END_MOVE });
       }, 250);
     } else if (e.keyCode === down) {
-      e.preventDefault();
       dispatch({ type: START_MOVE });
       dispatch({ type: MOVE_DOWN });
       setTimeout(() => {
@@ -92,32 +60,36 @@ export default function Game2048() {
         dispatch({ type: END_MOVE });
       }, 250);
     }
-  }, []);
+    return false;
+  };
+  const throttledHandleKeyDown = useThrottledCallback(handelKeyDown, 250, {
+    leading: true,
+    trailing: false,
+  });
   useEffect(() => {
-    document.addEventListener("keydown", handelKeydown);
+    document.addEventListener("keydown", throttledHandleKeyDown);
     return () => {
-      document.removeEventListener("keydown", handelKeydown);
+      document.removeEventListener("keydown", throttledHandleKeyDown);
     };
-  }, []);
+  }, [throttledHandleKeyDown]);
   useEffect(() => {
     console.log(board);
   }, [board]);
   return (
-    <Wrapper>
-      <Title>Game 2048</Title>
-      <div>{board.score}</div>
-      <button
-        onClick={() => {
+    <>
+      <GlobalStyle />
+      <Container
+        score={board.score}
+        restart={() => {
           dispatch({ type: RESET_BOARD });
         }}
       >
-        new board
-      </button>
-      <Board size={size}>
-        {board.tiles.map(
-          (tile, index) => tile.value && <Tile tile={tile} key={index} />
-        )}
-      </Board>
-    </Wrapper>
+        <Board size={size}>
+          {board.tiles.map(
+            (tile, index) => tile.value && <Tile tile={tile} key={index} />
+          )}
+        </Board>
+      </Container>
+    </>
   );
 }

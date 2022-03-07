@@ -4,13 +4,14 @@ const BoardContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   padding: 8px;
-  background-color: #776e65;
+  background-color: #bbada0;
   width: 480px;
   height: 480px;
   justify-content: space-around;
   align-items: center;
   border-radius: 3px;
   position: relative;
+  margin-bottom: 20px;
 `;
 export const Board = ({ size, children }) => {
   const count = size * size;

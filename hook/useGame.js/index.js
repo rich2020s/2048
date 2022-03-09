@@ -1,24 +1,25 @@
-import { idCounter } from "../hook/useIds";
-import size from "../boardSize";
-import { useCallback, useMemo, useReducer } from "react";
-import { initialState, reducer } from "../reducer";
+import { idCounter } from "../useIds";
+import size from "../../constant/boardSize";
+import { useCallback, useReducer } from "react";
+import { initialState, reducer } from "./reducer/reducer";
 import {
   CREATE_NEW_TILE,
   END_MOVE,
   MOVE_TILE,
+  RESET_BOARD,
   START_MOVE,
   UPDATE_TILE,
-} from "../actionType";
+  IS_OVER,
+} from "./reducer/actionType";
 export const useGame = () => {
   const [board, dispatch] = useReducer(reducer, initialState);
-  const { tiles, inMotion, score, isGameOver } = board;
+  const { tiles, score } = board;
   const moveUp = () => {
     dispatch({ type: START_MOVE });
     const newId = idCounter();
     let isChanged = false;
     let nextTilesArr = createEmptyTilesArr();
     let newTilesAfterMerged = [];
-    // let newBoard = [...board.tiles];
     let newBoard = tileOnBoard(tiles);
 
     for (let i = 0; i < size; i++) {
@@ -63,48 +64,8 @@ export const useGame = () => {
       isChanged,
       nextTilesArr,
       newTilesAfterMerged,
-      board.score
+      score
     );
-    // for (let rows of newBoard) {
-    //   for (let tile of rows) {
-    //     const { id, value, position, isMerged } = tile;
-    //     if (value) {
-    //       nextTilesArr[tile.indexInArr] = { id, value, position, isMerged };
-    //     }
-    //   }
-    // }
-    // if (!isChanged) {
-    //   dispatch({ type: END_MOVE });
-    //   return;
-    // }
-    // dispatch({ type: MOVE_TILE, tiles: nextTilesArr, isChanged: isChanged });
-    // let updateTiles = nextTilesArr.map((tile) => {
-    //   if (tile.isMerged) {
-    //     return {
-    //       id: null,
-    //       value: null,
-    //     };
-    //   }
-    //   return tile;
-    // });
-    // for (let i = 0; i < newTilesAfterMerged.length; i++) {
-    //   for (let j = 0; j < updateTiles.length; j++) {
-    //     if (updateTiles[j].value === null) {
-    //       updateTiles[j] = {
-    //         ...newTilesAfterMerged[i],
-    //       };
-    //       if (newTilesAfterMerged[i])
-    //         board.score += newTilesAfterMerged[i].value;
-    //       i++;
-    //     }
-    //     if (i >= newTilesAfterMerged.length) break;
-    //   }
-    // }
-    // setTimeout(() => {
-    //   dispatch({ type: UPDATE_TILE, tiles: updateTiles, score: board.score });
-    //   createTile(updateTiles);
-    //   dispatch({ type: END_MOVE });
-    // }, 250);
   };
 
   const moveDown = () => {
@@ -152,46 +113,14 @@ export const useGame = () => {
         }
       }
     }
-    for (let rows of newBoard) {
-      for (let tile of rows) {
-        const { id, value, position, isMerged } = tile;
-        if (value) {
-          nextTilesArr[tile.indexInArr] = { id, value, position, isMerged };
-        }
-      }
-    }
-    if (!isChanged) {
-      dispatch({ type: END_MOVE });
-      return;
-    }
-    dispatch({ type: MOVE_TILE, tiles: nextTilesArr, isChanged: isChanged });
-    let updateTiles = nextTilesArr.map((tile) => {
-      if (tile.isMerged) {
-        return {
-          id: null,
-          value: null,
-        };
-      }
-      return tile;
-    });
-    for (let i = 0; i < newTilesAfterMerged.length; i++) {
-      for (let j = 0; j < updateTiles.length; j++) {
-        if (updateTiles[j].value === null) {
-          updateTiles[j] = {
-            ...newTilesAfterMerged[i],
-          };
-          if (newTilesAfterMerged[i])
-            board.score += newTilesAfterMerged[i].value;
-          i++;
-        }
-        if (i >= newTilesAfterMerged.length) break;
-      }
-    }
-    setTimeout(() => {
-      dispatch({ type: UPDATE_TILE, tiles: updateTiles, score: board.score });
-      createTile(updateTiles);
-      dispatch({ type: END_MOVE });
-    }, 250);
+
+    tilesAfterMoved(
+      newBoard,
+      isChanged,
+      nextTilesArr,
+      newTilesAfterMerged,
+      score
+    );
   };
 
   const moveLeft = () => {
@@ -239,46 +168,13 @@ export const useGame = () => {
         }
       }
     }
-    for (let rows of newBoard) {
-      for (let tile of rows) {
-        const { id, value, position, isMerged } = tile;
-        if (value) {
-          nextTilesArr[tile.indexInArr] = { id, value, position, isMerged };
-        }
-      }
-    }
-    if (!isChanged) {
-      dispatch({ type: END_MOVE });
-      return;
-    }
-    dispatch({ type: MOVE_TILE, tiles: nextTilesArr, isChanged: isChanged });
-    let updateTiles = nextTilesArr.map((tile) => {
-      if (tile.isMerged) {
-        return {
-          id: null,
-          value: null,
-        };
-      }
-      return tile;
-    });
-    for (let i = 0; i < newTilesAfterMerged.length; i++) {
-      for (let j = 0; j < updateTiles.length; j++) {
-        if (updateTiles[j].value === null) {
-          updateTiles[j] = {
-            ...newTilesAfterMerged[i],
-          };
-          if (newTilesAfterMerged[i])
-            board.score += newTilesAfterMerged[i].value;
-          i++;
-        }
-        if (i >= newTilesAfterMerged.length) break;
-      }
-    }
-    setTimeout(() => {
-      dispatch({ type: UPDATE_TILE, tiles: updateTiles, score: board.score });
-      createTile(updateTiles);
-      dispatch({ type: END_MOVE });
-    }, 250);
+    tilesAfterMoved(
+      newBoard,
+      isChanged,
+      nextTilesArr,
+      newTilesAfterMerged,
+      score
+    );
   };
 
   const moveRight = () => {
@@ -326,46 +222,13 @@ export const useGame = () => {
         }
       }
     }
-    for (let rows of newBoard) {
-      for (let tile of rows) {
-        const { id, value, position, isMerged } = tile;
-        if (value) {
-          nextTilesArr[tile.indexInArr] = { id, value, position, isMerged };
-        }
-      }
-    }
-    if (!isChanged) {
-      dispatch({ type: END_MOVE });
-      return;
-    }
-    dispatch({ type: MOVE_TILE, tiles: nextTilesArr, isChanged: isChanged });
-    let updateTiles = nextTilesArr.map((tile) => {
-      if (tile.isMerged) {
-        return {
-          id: null,
-          value: null,
-        };
-      }
-      return tile;
-    });
-    for (let i = 0; i < newTilesAfterMerged.length; i++) {
-      for (let j = 0; j < updateTiles.length; j++) {
-        if (updateTiles[j].value === null) {
-          updateTiles[j] = {
-            ...newTilesAfterMerged[i],
-          };
-          if (newTilesAfterMerged[i])
-            board.score += newTilesAfterMerged[i].value;
-          i++;
-        }
-        if (i >= newTilesAfterMerged.length) break;
-      }
-    }
-    setTimeout(() => {
-      dispatch({ type: UPDATE_TILE, tiles: updateTiles, score: board.score });
-      createTile(updateTiles);
-      dispatch({ type: END_MOVE });
-    }, 250);
+    tilesAfterMoved(
+      newBoard,
+      isChanged,
+      nextTilesArr,
+      newTilesAfterMerged,
+      score
+    );
   };
   const generateNewTile = (currentBoard) => {
     let board = tileOnBoard(currentBoard);
@@ -421,7 +284,7 @@ export const useGame = () => {
     }
     return newBoard;
   }
-  function createEmptyBoard() {
+  const createEmptyBoard = useCallback(() => {
     let arr = [];
     const size = 4;
     for (let i = 0; i < size; i++) {
@@ -434,23 +297,9 @@ export const useGame = () => {
       }
     }
     return arr;
-  }
-  // function insertNewTile(currentBoard, newTile) {
-  //   let nextArr = [...currentBoard];
-  //   for (let i = 0; i < nextArr.length; i++) {
-  //     if (nextArr[i].value === null) {
-  //       nextArr[i] = {
-  //         ...newTile,
-  //       };
-  //       break;
-  //     }
-  //   }
-  //   console.log(nextArr);
-  //   dispatch({ type: CREATE_NEW_TILE, tiles: nextArr });
-  // }
+  }, []);
 
   function createTile(currentBoard) {
-    // console.log(board.isChanged, isFull(tiles));
     if (isFull(tiles)) return;
     generateNewTile(currentBoard);
   }
@@ -498,11 +347,41 @@ export const useGame = () => {
     setTimeout(() => {
       dispatch({ type: UPDATE_TILE, tiles: updateTiles, score });
       createTile(updateTiles);
+      dispatch({ type: IS_OVER, isOver: isOver });
       dispatch({ type: END_MOVE });
     }, 250);
   }
-
-  return [board, moveUp, moveRight, moveDown, moveLeft];
+  function restart() {
+    dispatch({ type: RESET_BOARD });
+  }
+  function isOver(tiles) {
+    if (!isFull(tiles)) return false;
+    let currentBoard = tileOnBoard(tiles);
+    if (atLeastOneMoveExists(currentBoard)) return false;
+    return true;
+  }
+  function atLeastOneMoveExists(board) {
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const { value } = board[i][j];
+        if (i - 1 > 0) {
+          if (value === board[i - 1][j].value) return true;
+        }
+        if (i + 1 < size) {
+          if (value === board[i + 1][j].value) return true;
+        }
+        if (j - 1 > 0) {
+          if (value === board[i][j - 1].value) return true;
+        }
+        if (j + 1 < size) {
+          if (value === board[i][j + 1].value) return true;
+        }
+      }
+    }
+    console.log(board);
+    return false;
+  }
+  return [board, moveUp, moveRight, moveDown, moveLeft, restart];
 };
 
 function createEmptyTilesArr() {

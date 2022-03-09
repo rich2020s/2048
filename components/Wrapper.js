@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { RestartBtn } from "./RestartBtn";
-const Wrapper = styled.div`
+const WrapperContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,15 +19,15 @@ const FlexContainer = styled.div`
 const Score = styled.div`
   color: #776e65;
 `;
-export function Container({ children, score, restart }) {
+export function Wrapper({ children, score, restart }) {
   return (
-    <Wrapper>
+    <WrapperContainer>
       <Title>Game 2048</Title>
       <FlexContainer>
         <RestartBtn onClick={restart}>Restart</RestartBtn>
         <Score>{score}</Score>
       </FlexContainer>
       {children}
-    </Wrapper>
+    </WrapperContainer>
   );
 }

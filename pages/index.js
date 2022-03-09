@@ -14,12 +14,15 @@ import {
 import { Container } from "../components/Wrapper";
 import { useEffect, useState, useCallback, useReducer } from "react";
 import { Title, Tile, Board, Wrapper } from "../components";
-import { moveUp, moveDown, moveLeft, moveRight } from "../moveMethod";
+import { useGame } from "../movingMethod";
 import { initialState, reducer } from "../reducer";
 import size from "../boardSize";
 export default function Game2048() {
-  const [board, dispatch] = useReducer(reducer, initialState);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [board, dispatch] = useReducer(reducer, initialState);
+
+  const [board, moveUp, moveRight, moveDown, moveLeft] = useGame();
+  // const [isLoading, setIsLoading] = useState(true);
+  console.log(board);
   const handelKeyDown = (e) => {
     e.preventDefault();
     const up = 38;
@@ -28,47 +31,20 @@ export default function Game2048() {
     const left = 37;
     if (board.inMotion) return;
     if (e.keyCode === up) {
-      dispatch({ type: START_MOVE });
-      dispatch({ type: MOVE_UP });
-      setTimeout(() => {
-        dispatch({ type: UPDATE_TILE });
-        dispatch({ type: CREATE_NEW_TILE });
-        dispatch({ type: END_MOVE });
-      }, 250);
+      moveUp();
     } else if (e.keyCode === right) {
-      dispatch({ type: START_MOVE });
-      dispatch({ type: MOVE_RIGHT });
-      setTimeout(() => {
-        dispatch({ type: UPDATE_TILE });
-        dispatch({ type: CREATE_NEW_TILE });
-        dispatch({ type: END_MOVE });
-      }, 250);
+      moveRight();
     } else if (e.keyCode === down) {
-      dispatch({ type: START_MOVE });
-      dispatch({ type: MOVE_DOWN });
-      setTimeout(() => {
-        dispatch({ type: UPDATE_TILE });
-        dispatch({ type: CREATE_NEW_TILE });
-        dispatch({ type: END_MOVE });
-      }, 250);
+      moveDown();
     } else if (e.keyCode === left) {
-      dispatch({ type: START_MOVE });
-      dispatch({ type: MOVE_LEFT });
-      setTimeout(() => {
-        dispatch({ type: UPDATE_TILE });
-        dispatch({ type: CREATE_NEW_TILE });
-        dispatch({ type: END_MOVE });
-      }, 250);
+      moveLeft();
     }
-    return false;
   };
   const throttledHandleKeyDown = useThrottledCallback(handelKeyDown, 250, {
     leading: true,
     trailing: false,
   });
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
+  useEffect(() => {}, []);
   useEffect(() => {
     document.addEventListener("keydown", throttledHandleKeyDown);
     return () => {
@@ -78,7 +54,7 @@ export default function Game2048() {
   useEffect(() => {
     console.log(board);
   }, [board]);
-  if (isLoading) return "";
+  // if (isLoading) return "";
   return (
     <>
       <GlobalStyle />

@@ -1,4 +1,4 @@
-import { isFull, tileOnBoard } from "./moveMethod";
+import { isFull, tileOnBoard } from "./movingMethod";
 export function isOver(tiles) {
   if (!isFull(tiles)) return false;
   let currentBoard = tileOnBoard(tiles);

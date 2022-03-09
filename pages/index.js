@@ -1,12 +1,12 @@
 import { useThrottledCallback } from "use-debounce";
 import { GlobalStyle } from "../constant";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Tile, Board, Wrapper } from "../components";
 import { useGame } from "../hook/useGame.js/index.js";
 import size from "../constant/boardSize";
 export default function Game2048() {
   const [board, moveUp, moveRight, moveDown, moveLeft, restart] = useGame();
-
+  const [isLoading, setIsLoading] = useState(true);
   const handelKeyDown = (e) => {
     e.preventDefault();
     const up = 38;
@@ -28,7 +28,9 @@ export default function Game2048() {
     leading: true,
     trailing: false,
   });
-  useEffect(() => {}, []);
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
   useEffect(() => {
     document.addEventListener("keydown", throttledHandleKeyDown);
     return () => {
@@ -42,7 +44,7 @@ export default function Game2048() {
       }, 250);
     }
   }, [board.isGameOver]);
-  // if (isLoading) return "";
+  if (isLoading) return "";
   return (
     <>
       <GlobalStyle />

@@ -3,7 +3,7 @@ Let's play 2048 on a webpage!
 
 This game was built with React.
 The unique part of this game is animations. Also there are scoreboard and it can generates ramdom tiles after tiles are moved.
-I spent a month working on this project. It was challenging but I learned a lot.
+I spent a month working on this project. It was challenging but I did it and I learned a lot.
 
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).

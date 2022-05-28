@@ -2,8 +2,8 @@
 Let's play 2048 on a webpage!  
 
 This game was built with React.
-The unique part of this game is animations. Also there are scoreboard and it can generates ramdom tiles after tiles are moved.
-I spent a month working on this project. It was challenging but I did it and I learned a lot.
+The unique part of this game is the animations. I implemented the scoreboard to track a user's scores, and it can generate random tiles to a random location after any tiles are moved.
+I spent a month working on this project. It was challenging, but it was fun, and I learned a lot.
 
 You can play it on [https://zealous-perlman-f4781c.netlify.app/](https://zealous-perlman-f4781c.netlify.app/)
 

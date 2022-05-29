@@ -1,7 +1,7 @@
 # 2048
 Let's play 2048 on a webpage!  
 
-This game was built with React.
+This game is built with React.
 The unique part of this game is the animations. I implemented the scoreboard to track a user's scores, and it can generate random tiles to a random location after any tiles are moved.
 I spent a month working on this project. It was challenging, but it was fun, and I learned a lot.
 
